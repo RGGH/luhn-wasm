@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+  <meta charset="utf-8" />
+  <title>Luhn WASM</title>
+  <style>
+    body { font: 16px/1.4 system-ui, sans-serif; margin: 2rem; max-width: 60ch; }
+    textarea { width: 100%; height: 8rem; }
+    .hit { padding: .5rem .75rem; border: 1px solid #ddd; border-radius: .5rem; margin: .5rem 0; }
+    .valid { border-color: #4caf50; }
+    .invalid { border-color: #f44336; }
+    code { background: #f6f6f6; padding: .1rem .3rem; border-radius: .3rem; }
+  </style>
+  <h1>Luhn checker (Rust → WASM)</h1>
+
+  <h2>Single number</h2>
+  <input id="single" placeholder="Type a number like 4539 1488 0343 6467" />
+  <div id="singleResult"></div>
+
+  <h2>Scan arbitrary text</h2>
+  <textarea id="text">try: call me at 4111 1111-1111 1111 or 79927398713</textarea>
+  <div id="hits"></div>
+
+  <script type="module">
+    import init, { luhn_check, luhn_scan } from "./pkg/luhn_wasm.js";
+    await init();
+
+    const $single = document.getElementById("single");
+    const $singleResult = document.getElementById("singleResult");
+    const $text = document.getElementById("text");
+    const $hits = document.getElementById("hits");
+
+    function renderSingle() {
+      const ok = luhn_check($single.value);
+      $singleResult.textContent = $single.value
+        ? (ok ? "✅ valid" : "❌ invalid")
+        : "";
+    }
+
+    function renderScan() {
+      const hits = luhn_scan($text.value);
+      $hits.innerHTML = "";
+      hits.forEach(h => {
+        const div = document.createElement("div");
+        div.className = "hit " + (h.valid ? "valid" : "invalid");
+        div.innerHTML = `
+          <div><strong>match:</strong> <code>${h.value}</code></div>
+          <div><strong>cleaned:</strong> <code>${h.cleaned}</code></div>
+          <div><strong>range:</strong> [${h.start}, ${h.end})</div>
+          <div><strong>luhn:</strong> ${h.valid ? "valid ✅" : "invalid ❌"}</div>
+        `;
+        $hits.appendChild(div);
+      });
+    }
+
+    $single.addEventListener("input", renderSingle);
+    $text.addEventListener("input", renderScan);
+
+    renderSingle();
+    renderScan();
+  </script>
+</html>
+
