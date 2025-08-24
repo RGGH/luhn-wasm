@@ -1,0 +1,15 @@
+{
+  "name": "luhn-wasm",
+  "type": "module",
+  "version": "0.1.0",
+  "files": [
+    "luhn_wasm_bg.wasm",
+    "luhn_wasm.js",
+    "luhn_wasm.d.ts"
+  ],
+  "main": "luhn_wasm.js",
+  "types": "luhn_wasm.d.ts",
+  "sideEffects": [
+    "./snippets/*"
+  ]
+}
